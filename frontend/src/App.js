@@ -1,14 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import Login from "./components/Login";
-import Home from "./components/Home"
-import Register from './components/Register'; //todo standardize component and page locations 
+import Home from "./components/Home";
+import Register from './components/Register';
 import Feed from "./components/Feed";
 import SongDetail from "./components/SongDetail";
 import AuthGuard from "./components/AuthGuard";
 
 function App() {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const isExpired = payload.exp * 1000 < Date.now();
+        if (isExpired) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('username');
+          localStorage.removeItem('role');
+        }
+      } catch {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('role');
+      }
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -38,4 +57,3 @@ function App() {
 }
 
 export default App;
-
