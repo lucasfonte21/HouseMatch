@@ -20,6 +20,7 @@ function Navbar() {
         {isLoggedIn ? (
           <>
             <Link to="/feed" style={styles.btn}>Feed</Link>
+            <Link to="/profile" style={styles.btn}>Profile</Link>
             <button onClick={handleLogout} style={styles.btnLogout}>Log Out</button>
           </>
         ) : (

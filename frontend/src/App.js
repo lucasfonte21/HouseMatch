@@ -3,10 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import Login from "./components/Login";
 import Home from "./components/Home"
-import Register from './components/Register'; //todo standardize component and page locations 
+import Register from './components/Register';
 import Feed from "./components/Feed";
 import SongDetail from "./components/SongDetail";
 import AuthGuard from "./components/AuthGuard";
+import Profile from "./components/Profile";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/home" element={<Navigate to="/" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
         <Route
           path="/feed"
           element={
