@@ -11,21 +11,24 @@ function AdminDashboard() {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('token');
+        //Could create another route for pre-query optimization
         const res = await fetch('http://localhost:5000/api/users', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || 'Failed to fetch users');
         setUsers(data);
-      } catch (err) {
+      } 
+      catch (err) {
         setError(err.message || 'Something went wrong.');
-      } finally {
+      } 
+      finally {
         setLoading(false);
       }
     };
     fetchUsers();
   }, []);
-
+// Make sure the DB/BE is running, no placeholder data 
   return (
     <div className="admin-container">
       <Navbar />
@@ -38,6 +41,7 @@ function AdminDashboard() {
 
         {!loading && !error && (
           <div className="admin-table-wrapper">
+            //Code segment below from W3School HTML Tutorial
             <table className="admin-table">
               <thead>
                 <tr>
