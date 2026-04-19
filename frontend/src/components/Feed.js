@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import TrackCard from './TrackCard';
 import Navbar from './Navbar';
@@ -63,8 +63,8 @@ function SwipeCard({ song, onLike, onPass, isTop }) {
         title={song.title}
         artist={song.artist}
         albumArt={song.albumArt}
-        spotifyUrl={song.spotifyUrl}
         soundcloudUrl={song.soundcloudUrl}
+        previewUrl={song.previewUrl}
       />
     </motion.div>
   );
@@ -86,9 +86,10 @@ function Feed() {
             id: song._id || i,
             title: song.title,
             artist: song.artist || '',
-            albumArt: song.albumArt || null,
-            spotifyUrl: song.spotifyUrl || null,
-            soundcloudUrl: song.soundcloudUrl || null,
+            albumArt: song.artworkUrl || null,
+            previewUrl: song.previewUrl || null,
+            streamAccess: song.streamAccess || null,
+            soundcloudUrl: song.permalinkUrl || song.soundcloudUrl || null,
           })));
         } else {
           setSongs(testSongs);
