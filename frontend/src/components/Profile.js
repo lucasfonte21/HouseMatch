@@ -1,14 +1,48 @@
+import { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import './Profile.css';
 
-const placeholderLikedSongs = [
-  { id: 1, title: "Losing It", artist: "FISHER" },
-  { id: 2, title: "Rumble", artist: "Skrillex & Fred Again" },
-  { id: 3, title: "San Frandisco", artist: "Dom Dolla" },
-];
-
 function Profile() {
   const username = localStorage.getItem('username') || 'User';
+  const [stats, setStats] = useState({ liked: 0, disliked: 0, total: 0 });
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [likedSongs, setLikedSongs] = useState([]);
+  const [songsLoading, setSongsLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/users/me/stats', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok) setStats(data);
+      } catch {
+        // silently fail, zeros will show
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    const fetchLikedSongs = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/users/me/liked-songs', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok) setLikedSongs(data);
+      } catch {
+        // silently fail
+      } finally {
+        setSongsLoading(false);
+      }
+    };
+
+    fetchStats();
+    fetchLikedSongs();
+  }, []);
 
   return (
     <div className="profile-container">
@@ -30,15 +64,15 @@ function Profile() {
         {/* Stats */}
         <div className="profile-stats">
           <div className="stat-card">
-            <span className="stat-number">42</span>
+            <span className="stat-number">{statsLoading ? '—' : stats.liked}</span>
             <span className="stat-label">Liked</span>
           </div>
           <div className="stat-card">
-            <span className="stat-number">17</span>
+            <span className="stat-number">{statsLoading ? '—' : stats.disliked}</span>
             <span className="stat-label">Passed</span>
           </div>
           <div className="stat-card">
-            <span className="stat-number">59</span>
+            <span className="stat-number">{statsLoading ? '—' : stats.total}</span>
             <span className="stat-label">Swiped</span>
           </div>
         </div>
@@ -46,17 +80,26 @@ function Profile() {
         {/* Liked songs */}
         <section className="profile-section">
           <h2 className="profile-section-title">Liked Songs</h2>
-          <div className="liked-songs-list">
-            {placeholderLikedSongs.map(song => (
-              <div key={song.id} className="liked-song-card">
-                <div className="liked-song-art" />
-                <div>
-                  <p className="liked-song-title">{song.title}</p>
-                  <p className="liked-song-artist">{song.artist}</p>
+          {songsLoading ? (
+            <p className="profile-meta">Loading...</p>
+          ) : likedSongs.length === 0 ? (
+            <p className="profile-meta">No liked songs yet.</p>
+          ) : (
+            <div className="liked-songs-list">
+              {likedSongs.map(song => (
+                <div key={song._id} className="liked-song-card">
+                  <div
+                    className="liked-song-art"
+                    style={song.artworkUrl ? { backgroundImage: `url(${song.artworkUrl})`, backgroundSize: 'cover' } : {}}
+                  />
+                  <div>
+                    <p className="liked-song-title">{song.title}</p>
+                    <p className="liked-song-artist">{song.artist}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
 
       </div>

@@ -16,7 +16,7 @@ function Home() {
           setTopTrack(data[0]);
         }
       } catch {
-        // silently fail, placeholder text will show
+        // fail silently 
       }
     };
     fetchTopTrack();
