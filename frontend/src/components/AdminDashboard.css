@@ -100,3 +100,23 @@
   color: #666;
   padding: 2rem;
 }
+.admin-delete-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.admin-delete-btn:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.1);
+  transform: scale(1.1);
+}
+
+.admin-delete-btn:active {
+  transform: scale(0.95);
+}
