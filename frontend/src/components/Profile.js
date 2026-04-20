@@ -1,66 +1,139 @@
+import { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import './Profile.css';
-
-const placeholderLikedSongs = [
-  { id: 1, title: "Losing It", artist: "FISHER" },
-  { id: 2, title: "Rumble", artist: "Skrillex & Fred Again" },
-  { id: 3, title: "San Frandisco", artist: "Dom Dolla" },
-];
+import apiFetch from '../api/apiFetch';
 
 function Profile() {
   const username = localStorage.getItem('username') || 'User';
+  const token = localStorage.getItem('token');
+
+  const [submittedSongs, setSubmittedSongs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchSubmittedSongs = async () => {
+      try {
+        const response = await apiFetch('http://localhost:5000/api/songs/mine', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response) return;
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch submitted songs.');
+        }
+
+        setSubmittedSongs(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error('Error loading submitted songs:', err);
+        setError('Could not load your submitted songs.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubmittedSongs();
+  }, [token]);
+
+  const hasSubmittedSongs = submittedSongs.length > 0;
 
   return (
-    <div className="profile-container">
+    <>
       <Navbar />
+      <div className="profile-container">
+        <div className="profile-content">
+          <div className="profile-header">
+            <div className="profile-avatar">
+              {username.charAt(0).toUpperCase()}
+            </div>
 
-      <div className="profile-content">
+            <div>
+              <h1 className="profile-name">@{username}</h1>
+              <p className="profile-meta">Member since 2025 · House music enthusiast</p>
+            </div>
+          </div>
 
-        {/* Avatar + name */}
-        <div className="profile-header">
-          <div className="profile-avatar">
-            {username.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <h1 className="profile-name">{username}</h1>
-            <p className="profile-meta">Member since 2025 · House music enthusiast</p>
-          </div>
-        </div>
+          <div className="profile-stats">
+            <div className="stat-card">
+              <span className="stat-number">{submittedSongs.length}</span>
+              <span className="stat-label">Submitted</span>
+            </div>
 
-        {/* Stats */}
-        <div className="profile-stats">
-          <div className="stat-card">
-            <span className="stat-number">42</span>
-            <span className="stat-label">Liked</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-number">17</span>
-            <span className="stat-label">Passed</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-number">59</span>
-            <span className="stat-label">Swiped</span>
-          </div>
-        </div>
+            <div className="stat-card">
+              <span className="stat-number">0</span>
+              <span className="stat-label">Liked</span>
+            </div>
 
-        {/* Liked songs */}
-        <section className="profile-section">
-          <h2 className="profile-section-title">Liked Songs</h2>
-          <div className="liked-songs-list">
-            {placeholderLikedSongs.map(song => (
-              <div key={song.id} className="liked-song-card">
-                <div className="liked-song-art" />
-                <div>
-                  <p className="liked-song-title">{song.title}</p>
-                  <p className="liked-song-artist">{song.artist}</p>
-                </div>
+            <div className="stat-card">
+              <span className="stat-number">0</span>
+              <span className="stat-label">Passed</span>
+            </div>
+          </div>
+
+          {loading ? (
+            <section className="profile-section">
+              <h2 className="profile-section-title">Profile</h2>
+              <p className="profile-empty">Loading submitted songs...</p>
+            </section>
+          ) : error ? (
+            <section className="profile-section">
+              <h2 className="profile-section-title">Profile</h2>
+              <p className="profile-empty">{error}</p>
+            </section>
+          ) : !hasSubmittedSongs ? (
+            <section className="profile-section">
+              <h2 className="profile-section-title">Welcome</h2>
+              <div className="profile-empty-state">
+                <p className="profile-empty-title">No songs submitted yet</p>
+                <p className="profile-empty">
+                  Your submitted songs will appear here once you upload one.
+                </p>
               </div>
-            ))}
-          </div>
-        </section>
+            </section>
+          ) : (
+            <section className="profile-section">
+              <h2 className="profile-section-title">Submitted Songs</h2>
+              <div className="liked-songs-list">
+                {submittedSongs.map((song) => (
+                  <div key={song._id} className="liked-song-card">
+                    {song.artworkUrl ? (
+                      <img
+                        src={song.artworkUrl}
+                        alt={`${song.title} cover`}
+                        className="liked-song-art"
+                      />
+                    ) : (
+                      <div className="liked-song-art liked-song-art-placeholder" />
+                    )}
 
+                    <div style={{ flex: 1 }}>
+                      <p className="liked-song-title">{song.title}</p>
+                      <p className="liked-song-artist">{song.artist}</p>
+                    </div>
+
+                    {song.soundcloudUrl && (
+                      <a
+                        href={song.soundcloudUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="profile-song-link"
+                      >
+                        Open
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
