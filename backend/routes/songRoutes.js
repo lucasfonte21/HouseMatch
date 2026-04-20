@@ -51,6 +51,21 @@ router.get("/leaderboard", async (req, res) => {
   }
 });
 
+// GET /api/songs/mine
+// fetch songs submitted by the logged-in user
+router.get("/mine", protect, async (req, res) => {
+  try {
+    const songs = await Song.find({ submittedBy: req.user.id })
+      .sort({ createdAt: -1 })
+      .select("title artist soundcloudUrl artworkUrl createdAt");
+
+    res.status(200).json(songs);
+  } catch (err) {
+    console.error("Error fetching submitted songs:", err);
+    res.status(500).json({ message: "Server error fetching submitted songs." });
+  }
+});
+
 //GET /api/songs/:id
 //fetch one song by ID
 router.get("/:id", async (req, res) => {
